@@ -39,7 +39,6 @@ public class RestHelper {
                 .then()
                 .contentType(ContentType.JSON)
                 .statusCode(200)
-                //.body("name", equalTo("Ministry of Magic Fog"))
                 .extract().response().prettyPrint();
     }
 
