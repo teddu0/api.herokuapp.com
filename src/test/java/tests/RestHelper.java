@@ -2,56 +2,46 @@ package tests;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 public class RestHelper {
     String uri = "https://wizard-world-api.herokuapp.com";
-    public void getAllSpells(){
+    public int getAllSpells(){
         RestAssured.baseURI = uri;
-        given()
+        Response response = given()
                 .when()
-                .get("/Spells")
-                .then()
-                .statusCode(200)
-                .extract().response().prettyPrint();
+                .get("/Spells");
+        return response.getStatusCode();
     }
 
-    public void getSpellsByParameters(String key, String value){
+    public String getSpellsByParameters(String key, String value){
         RestAssured.baseURI = uri;
-        given()
+        Response response = given()
                 .when()
                 .param(key, value)
-                .get("/Spells")
-                .then()
-                .contentType(ContentType.JSON)
-                .statusCode(200)
-                .body("[0]."+key, equalTo(value))
-                .extract().response().prettyPrint();
+                .get("/Spells");
+        return response.jsonPath().getString("[0]."+key);
     }
 
 
-    public void getSpellByExsistingId(String id){
+    public int getSpellByExsistingId(String id){
         RestAssured.baseURI = uri;
-        given()
+        Response response = given()
                 .when()
-                .get("/Spells/"+id)
-                .then()
-                .contentType(ContentType.JSON)
-                .statusCode(200)
-                .extract().response().prettyPrint();
+                .get("/Spells/"+id);
+        return response.getStatusCode();
+
     }
 
-    public void getSpellByNonExsistingId(String id){
+    public int getSpellByNonExsistingId(String id){
         RestAssured.baseURI = uri;
-        given()
+        Response response = given()
                 .when()
-                .get("/Spells/"+id)
-                .then()
-                .contentType(ContentType.JSON)
-                .statusCode(404)
-                .body("title", equalTo("Spell not found with id "+id))
-                .extract().response().prettyPrint();
+                .get("/Spells/"+id);
+        return response.getStatusCode();
     }
 
 }
