@@ -1,53 +1,88 @@
 package tests;
 
+import dto.ErrorMessage;
+import dto.ModelClass;
 import io.qameta.allure.Description;
 import io.qameta.allure.Owner;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import test.helper.TestClient;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 public class SpellsManipulationTests {
-    RestHelper rh = new RestHelper();
+    TestClient rh = new TestClient();
 
     @Test
     @Owner("Константин В.")
     @Description("Получение всего списка заклинаний без параметров")
     public void testGettingAllSpells() {
-        Assert.assertEquals(200, rh.getAllSpells());
+        List<ModelClass> array = Arrays.stream(rh.getAllSpells()
+                        .then()
+                        .extract()
+                        .as(ModelClass[].class))
+                .toList();
+        Assert.assertNotNull(array);
     }
 
     @Test
     @Owner("Константин В.")
     @Description("Получение заклинания по существующему имени")
     public void testGettingSpellByExistingNameOfSpell() {
-        Assert.assertEquals("Alarte Ascendare", rh.getSpellsByParameters("name", "Alarte Ascendare"));
+        List<ModelClass> array = Arrays.stream(rh.getSpellsByParameters("name", "Alarte Ascendare")
+                        .then()
+                        .extract()
+                        .as(ModelClass[].class))
+                .toList();
+        Assert.assertEquals("Alarte Ascendare", array.get(0).getName());
     }
 
     @Test
     @Owner("Константин В.")
     @Description("Получение заклиная по существующему типу")
     public void testGettingSpellByExistingTypeOfSpell() {
-        Assert.assertEquals("Charm", rh.getSpellsByParameters("type", "Charm"));
+        List<ModelClass> array = Arrays.stream(rh.getSpellsByParameters("type", "Charm")
+                        .then()
+                        .extract()
+                        .as(ModelClass[].class))
+                .toList();
+        Assert.assertEquals("Charm", array.get(0).getType());
     }
 
     @Test
     @Owner("Константин В.")
     @Description("Получение заклиная по существующему заклинанию")
     public void testGettingSpellByExistingSpell() {
-        Assert.assertEquals("Aparecium", rh.getSpellsByParameters("incantation", "Aparecium"));
+        List<ModelClass> array = Arrays.stream(rh.getSpellsByParameters("incantation", "Aparecium")
+                        .then()
+                        .extract()
+                        .as(ModelClass[].class))
+                .toList();
+        Assert.assertEquals("Aparecium", array.get(0).getIncantation());
     }
 
     @Test
     @Owner("Константин В.")
     @Description("Получение заклиная по существующему ID")
     public void testGettingSpellByExistingId() {
-        Assert.assertEquals(200, rh.getSpellByExistingId());
+        ModelClass modelClass = rh.getSpellByExistingId()
+                .then()
+                .extract()
+                .as(ModelClass.class);
+        Assert.assertNotNull(modelClass);
     }
 
     @Test
     @Owner("Константин В.")
     @Description("Получение заклиная по несуществующему ID")
     public void testGettingSpellByNonExistingId() {
-        Assert.assertEquals(404, rh.getSpellByNonExistingId());
+        ErrorMessage errorMessage = rh.getSpellByNonExistingId()
+                .then()
+                .extract()
+                .as(ErrorMessage.class);
+        Assert.assertEquals("404", errorMessage.getStatus());
+        Assert.assertEquals("Spell not found with id 99170271-1b6a-4c10-a947-37ee558b6c83", errorMessage.getTitle());
     }
 }
